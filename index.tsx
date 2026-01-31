@@ -52,6 +52,55 @@ async function removeKeywordEntry(idx: number, forceUpdate: () => void) {
     forceUpdate();
 }
 
+// Export keyword entries to JSON
+function exportKeywordEntries() {
+    const data = JSON.stringify(keywordEntries, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `keyword-entries-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Import keyword entries from JSON
+function importKeywordEntries(update: () => void) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const imported = JSON.parse(text) as Array<KeywordEntry>;
+
+            // Validate imported data
+            if (!Array.isArray(imported)) {
+                throw new Error('Invalid format: expected array');
+            }
+
+            for (const entry of imported) {
+                if (!entry.regex || !entry.listType || !Array.isArray(entry.listIds)) {
+                    throw new Error('Invalid entry format');
+                }
+            }
+
+            // Merge with existing entries
+            keywordEntries = [...keywordEntries, ...imported];
+            await DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
+            update();
+        } catch (err) {
+            alert(`Failed to import keyword entries: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+    };
+    input.click();
+}
+
 function safeMatchesRegex(str: string, regex: string, flags: string) {
     try {
         return str.match(new RegExp(regex, flags));
@@ -260,6 +309,25 @@ function KeywordEntries() {
         <>
             {elements}
             <div><Button onClick={() => addKeywordEntry(update)}>Add Keyword Entry</Button></div>
+            <div style={{ marginTop: '8px' }}>
+                <Flex flexDirection="row" style={{ gap: '8px' }}>
+                    <Button onClick={exportKeywordEntries} look={Button.Looks.OUTLINED}>
+                        Export Keywords
+                    </Button>
+                    <Button onClick={() => importKeywordEntries(update)} look={Button.Looks.OUTLINED}>
+                        Import Keywords
+                    </Button>
+                    <Button onClick={() => {
+                        if (keywordEntries.length === 0 || confirm('Clear all keyword entries?')) {
+                            keywordEntries = [];
+                            DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
+                            update();
+                        }
+                    }} look={Button.Looks.OUTLINED} color={Button.Colors.RED}>
+                        Clear All
+                    </Button>
+                </Flex>
+            </div>
         </>
     );
 }
