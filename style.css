@@ -19,3 +19,7 @@
     margin-top: 0.5em;
     margin-right: 40px;
 }
+
+.vc-keywordnotify-disabled-input {
+    opacity: 0.5;
+}

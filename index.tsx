@@ -24,7 +24,7 @@ import { Button, ChannelStore, FluxDispatcher, Select, SelectedChannelStore, Tab
 import type { JSX, PropsWithChildren } from "react";
 
 type IconProps = JSX.IntrinsicElements["svg"];
-type KeywordEntry = { regex: string, listIds: Array<string>, listType: ListType, ignoreCase: boolean; };
+type KeywordEntry = { regex: string, listIds: Array<string>, listType: ListType, ignoreCase: boolean, enabled: boolean };
 
 let keywordEntries: Array<KeywordEntry> = [];
 let keywordLog: Array<any> = [];
@@ -41,13 +41,26 @@ const KEYWORD_LOG_KEY = "KeywordNotify_log";
 const cl = classNameFactory("vc-keywordnotify-");
 
 async function addKeywordEntry(forceUpdate: () => void) {
-    keywordEntries.push({ regex: "", listIds: [], listType: ListType.BlackList, ignoreCase: false });
+    keywordEntries.push({ regex: "", listIds: [], listType: ListType.BlackList, ignoreCase: false, enabled: true });
     await DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
     forceUpdate();
 }
 
 async function removeKeywordEntry(idx: number, forceUpdate: () => void) {
     keywordEntries.splice(idx, 1);
+    await DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
+    forceUpdate();
+}
+
+async function duplicateKeywordEntry(idx: number, forceUpdate: () => void) {
+    const original = keywordEntries[idx];
+    keywordEntries.splice(idx + 1, 0, {
+        regex: original.regex,
+        listIds: [...original.listIds],
+        listType: original.listType,
+        ignoreCase: original.ignoreCase,
+        enabled: original.enabled
+    });
     await DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
     forceUpdate();
 }
@@ -255,10 +268,16 @@ function KeywordEntries() {
         update();
     }
 
+    async function setEnabled(index: number, value: boolean) {
+        keywordEntries[index].enabled = value;
+        await DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
+        update();
+    }
+
     const elements = keywordEntries.map((entry, i) => {
         return (
             <>
-                <Collapsible title={`Keyword Entry ${i + 1}`}>
+                <Collapsible title={`Keyword Entry ${i + 1} ${!values[i].enabled ? '(Disabled)' : ''}`}>
                     <Flex flexDirection="row">
                         <div style={{ flexGrow: 1 }}>
                             <TextInput
@@ -266,8 +285,17 @@ function KeywordEntries() {
                                 spellCheck={false}
                                 value={values[i].regex}
                                 onChange={e => setRegex(i, e)}
+                                disabled={!values[i].enabled}
                             />
                         </div>
+                        <Button
+                            onClick={() => duplicateKeywordEntry(i, update)}
+                            look={Button.Looks.FILLED}
+                            size={Button.Sizes.SMALL}
+                            style={{ marginRight: '4px' }}
+                            title="Duplicate Entry">
+                            📋
+                        </Button>
                         <Button
                             onClick={() => removeKeywordEntry(i, update)}
                             look={Button.Looks.FILLED}
@@ -277,9 +305,18 @@ function KeywordEntries() {
                         </Button>
                     </Flex>
                     <FormSwitch
+                        title="Enabled"
+                        className={cl("switch")}
+                        value={values[i].enabled}
+                        onChange={() => {
+                            setEnabled(i, !values[i].enabled);
+                        }}
+                    />
+                    <FormSwitch
                         title="Ignore Case"
                         className={cl("switch")}
                         value={values[i].ignoreCase}
+                        disabled={!values[i].enabled}
                         onChange={() => {
                             setIgnoreCase(i, !values[i].ignoreCase);
                         }}
@@ -457,6 +494,10 @@ export default definePlugin({
 
         for (const entry of keywordEntries) {
             if (entry.regex === "") {
+                continue;
+            }
+
+            if (!entry.enabled) {
                 continue;
             }
 
