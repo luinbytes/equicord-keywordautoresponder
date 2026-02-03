@@ -1,229 +1,244 @@
-# KeywordNotify - Vencord/Equicord Plugin
+# KeywordNotify - Multi-Server Configuration
 
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://opensource.org/licenses/GPL-3.0)
+A Vencord/Equicord Discord plugin that monitors messages for keywords/regexes and sends notifications.
 
-A powerful keyword monitoring plugin for Vencord/Equicord that notifies you when specific keywords or regex patterns appear in Discord messages.
+## New Features (Multi-Server Update)
 
-## ✨ Features
+### 1. Per-Server Configuration
 
-### 🎯 Keyword Matching
-- **Regex Support**: Full regular expression support for flexible pattern matching
-- **Multiple Keywords**: Create unlimited keyword entries
-- **Case Insensitive Option**: Toggle case sensitivity per keyword
-- **Smart Matching**: Searches message content, embed titles, descriptions, and field values
+- Each keyword entry can be scoped to a specific Discord server (guild)
+- Select "All Servers" (default) for global keywords
+- Select specific server to monitor only in that server
 
-### 🔒 Filtering Controls
-- **Blacklist Mode**: Match messages everywhere except specified channels/guilds/users
-- **Whitelist Mode**: Only match in specific channels/guilds/users
-- **Bot Filtering**: Option to ignore bot messages globally or whitelist specific bots
-- **Flexible IDs**: Filter by channel IDs, guild IDs, or user IDs
+### 2. Webhook Notifications
 
-### 📊 Notification System
-- **Custom Inbox Tab**: Keyword notifications appear in their own tab in Discord's inbox
-- **Message History**: Persistent log of all keyword matches
-- **Configurable Limit**: Control how many matches to keep in history
-- **Quick Actions**: Clear all notifications with one click
+- Optional Discord webhook URL for each keyword entry
+- Sends rich embed notifications when keyword matches
+- Includes: keyword, server, channel, author, time, and message preview
+- Webhook format:
+  - Username: KeywordNotify
+  - Color: Green (0x00ff00)
+  - Fields: Keyword, Server, Channel, Author, Time
+  - Description: Message preview (up to 500 chars)
+  - Footer: Match count
 
-### 🎨 User Interface
-- **Highlighting**: Matched keywords are highlighted in message content
-- **Preview**: See message previews directly in notification list
-- **Easy Management**: Add, remove, and edit keywords with a clean UI
-- **Responsive**: Works seamlessly with Discord's UI
+### 3. Keyword Statistics
 
-### 💾 Data Persistence
-- **Local Storage**: All keyword rules and logs stored using Vencord's DataStore
-- **Survives Restarts**: Your configuration persists between Discord restarts
-- **Export Ready**: Data can be exported if needed
+- **Total Matches**: How many times this keyword matched
+- **Last Matched**: Timestamp of most recent match
+- Stats displayed in keyword entry UI
+- Automatically updated on each match
+- Persistent across sessions
 
-## 🚀 Installation
+## Configuration
 
-### Prerequisites
-1. **Vencord** or **Equicord** installed on your Discord client
-2. Discord Desktop or web app (plugin doesn't work on mobile)
+### Settings
 
-### Installing the Plugin
+- **Ignore Bots**: Skip messages from bot accounts
+- **Amount to Keep**: Number of matched messages to log
+- **Keywords**: Manage keyword entries
 
-#### Option 1: Manual Installation
-1. Download `index.tsx` and `style.css` from this repository
-2. Copy both files to your Vencord plugins folder:
-   - **Windows**: `%appdata%\Vencord\plugins\`
-   - **Linux/Mac**: `~/.config/Vencord/plugins/`
-3. Restart Discord
-4. Open Discord Settings → Vencord → Plugins
-5. Enable "KeywordNotify"
+### Keyword Entry Fields
 
-#### Option 2: From Source
-```bash
-# Clone the repository
-git clone https://github.com/luinbytes/equicord-keywordautoresponder.git
+1. **Regex Pattern**: The regex to match in messages
+2. **Enabled**: Toggle this keyword entry on/off
+3. **Ignore Case**: Case-insensitive regex matching
+4. **Server**: Select specific server or "All Servers"
+5. **Webhook URL**: Optional Discord webhook for notifications
+6. **Whitelist/Blacklist**:
+   - **Whitelist**: Only match in listed channels/users/guilds
+   - **Blacklist**: Match everywhere except listed
+7. **List IDs**: Channel/user/guild IDs for whitelist/blacklist
 
-# Copy the files to your Vencord plugins directory
-cp equicord-keywordautoresponder/index.tsx ~/.config/Vencord/plugins/
-cp equicord-keywordautoresponder/style.css ~/.config/Vencord/plugins/
+### Stats Display
 
-# Restart Discord
-```
+- **Total Matches**: Cumulative match count
+- **Last Matched**: Date/time of most recent match
 
-## 📖 Usage
+## Usage
 
-### Setting Up Keywords
+### Basic Setup
 
-1. Open Discord Settings → Vencord → Plugins → KeywordNotify
+1. Open Discord settings → Vencord → Plugins → KeywordNotify
 2. Click "Add Keyword Entry"
-3. Configure your keyword:
-   - **Regex**: Enter the regex pattern to match (e.g., `@me`, `hello.*world`, `https?://example\.com`)
-   - **List Type**: Choose Blacklist (match everywhere except) or Whitelist (only match in)
-   - **List IDs**: Add channel IDs, guild IDs, or user IDs to filter (one per line)
-   - **Ignore Case**: Toggle to make matching case-insensitive
-4. Click "Add" to save
+3. Enter regex pattern (e.g., `urgent|important`)
+4. Configure options:
+   - Server: Select "All Servers" or specific server
+   - Ignore Case: Enable for case-insensitive matching
+   - Whitelist/Blacklist: Define where to look for matches
+5. Click "Enabled" to activate
 
-### Viewing Notifications
+### Webhook Setup
 
-1. Open Discord's inbox (mailbox icon near the bottom)
-2. Click on the "Keywords" tab
-3. View all keyword matches with message previews
-4. Click a notification to jump to the message
+1. Create a Discord webhook in your target server
+2. Copy the webhook URL
+3. Paste into "Webhook URL" field in keyword entry
+4. Keyword matches will now send notifications to webhook
 
-### Managing Notifications
+### Stats Monitoring
 
-- **Clear All**: Click the "Clear All" button to remove all notifications
-- **Configurable History**: Adjust "Amount to Keep" in settings (default: 50)
-- **Ignore Bots**: Enable "Ignore Bot Messages" to skip bot messages globally
+Stats are displayed in each keyword entry:
+- **🎯 Total Matches**: How many times this keyword triggered
+- **📊 Last Matched**: When this keyword last matched
 
-## 🔧 Configuration
+## Data Migration
 
-### Keyword Entry Options
+The plugin automatically migrates existing keyword entries:
+- Old entries: Work as before (all servers, no webhook)
+- New fields: Added with default values on startup
+- Stats: Preserved if previously tracked
 
-| Setting | Description |
-|---------|-------------|
-| **Regex** | Regular expression pattern to search for in messages |
-| **List Type** | BlackList (match everywhere except IDs) or Whitelist (only match in IDs) |
-| **List IDs** | Comma-separated or line-separated list of channel/guild/user IDs |
-| **Ignore Case** | Whether matching should be case-insensitive |
+## Data Storage
 
-### Plugin Settings
+- **Keyword Entries**: `KeywordNotify_keywordEntries`
+- **Message Log**: `KeywordNotify_log`
+- **Stats**: `KeywordNotify_stats`
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Amount to Keep** | Number of keyword matches to keep in history | 50 |
-| **Ignore Bot Messages** | Skip messages from bots globally | false |
+## Import/Export
 
-### Finding IDs
+- **Export Keywords**: Download all keyword entries as JSON
+- **Import Keywords**: Load keyword entries from JSON file
+- **Clear All**: Delete all keyword entries (with confirmation)
 
-To get channel/guild/user IDs:
-1. Enable Developer Mode in Discord Settings → Advanced
-2. Right-click on a channel, server, or user
-3. Copy ID
+## Examples
 
-### Regex Examples
-
-| Pattern | Matches | Case Insensitive |
-|---------|---------|------------------|
-| `@me` | Exact "@me" | "at me", "@Me", "@ME" |
-| `hello.*world` | "hello" followed by anything then "world" | "Hello there, world!" |
-| `\b(price|cost)\b` | Word "price" or "cost" | "What's the Price?" |
-| `https?://github\.com/[^/]+` | GitHub profile links | "HTTPS://GITHUB.COM/USER" |
-| `\berror\b` | Word "error" (not "terror") | "An ERROR occurred" |
-
-## 🏗️ Architecture
-
-### How It Works
-
-1. **Message Interception**: Plugin hooks into Discord's FluxDispatcher
-2. **Pattern Matching**: Each message is checked against all keyword entries
-3. **Filtering**: Messages are filtered by whitelist/blacklist rules
-4. **Notification Creation**: Matched messages are added to notification log
-5. **UI Updates**: Custom inbox tab displays notifications with highlighted keywords
-
-### Technical Details
-
-- **Webpack Patching**: Patches Discord's UI to inject custom inbox tab
-- **FluxDispatcher Hooks**: Intercepts MESSAGE_CREATE, MESSAGE_UPDATE, LOAD_MESSAGES_SUCCESS
-- **DataStore**: Vencord's persistent storage API
-- **React Components**: Uses Vencord's React components and hooks
-
-### File Structure
+### Server-Specific Keyword
 
 ```
-equicord-keywordautoresponder/
-├── index.tsx          # Main plugin code
-├── style.css          # Plugin styles
-├── CLAUDE.md          # Developer documentation (for AI assistants)
-└── README.md          # This file
+Regex: "deploy|production"
+Server: "Dev Team Server"
+Enabled: ✓
 ```
+Only matches in "Dev Team Server"
 
-## 🐛 Troubleshooting
+### Webhook Alert
 
-### Plugin Not Showing in Vencord
-- Ensure both `index.tsx` and `style.css` are in the plugins folder
-- Restart Discord completely (close and reopen)
-- Check Vencord console for errors (Ctrl+Shift+I → Console)
+```
+Regex: "error|critical|exception"
+Webhook URL: https://discord.com/api/webhooks/...
+Enabled: ✓
+```
+Sends webhook alerts for error keywords
+
+### Whitelist Mode
+
+```
+Regex: "meeting"
+List Type: Whitelist
+List IDs: [channel_id_1, channel_id_2]
+Enabled: ✓
+```
+Only matches in specified channels
+
+### Stats Monitoring
+
+After running for a while:
+- **Total Matches**: 42
+- **Last Matched**: 2026-02-02 04:30:15
+- Shows keyword is actively triggering
+
+## Technical Details
+
+### Message Matching
+
+- Searches message content
+- Searches embed titles, descriptions, and fields
+- Supports regex patterns
+- Case-sensitive (unless "Ignore Case" enabled)
+- Thread-safe parallel processing
+
+### Server Filtering
+
+- Messages are filtered by `guild_id`
+- DMs have `guild_id = null`
+- Entries with `serverId = null` match everywhere
+- Entries with specific `serverId` only match that server
+
+### Webhook Notifications
+
+- Sent via `fetch()` to Discord webhook URL
+- Rich embed format
+- Silent on failure (logs to console)
+- No rate limiting (Discord handles webhook rate limits)
+
+### Stats Tracking
+
+- Updated on every keyword match
+- Stored in `keywordStats` object
+- Persisted to DataStore
+- Includes per-server match counts
+
+## Troubleshooting
 
 ### Keywords Not Matching
-- Verify regex syntax is correct (use regex101.com to test)
-- Check that List Type and List IDs are set correctly
-- Ensure "Ignore Bot Messages" isn't blocking matches you want
-- Try enabling "Ignore Case" if case might be the issue
 
-### Notifications Not Appearing
-- Check that Discord's inbox is enabled
-- Click the "Keywords" tab explicitly (doesn't auto-select)
-- Verify "Amount to Keep" isn't set to 0
-- Check DataStore has data (plugin should persist correctly)
+- Check that keyword entry is **Enabled**
+- Verify regex pattern is valid
+- Check server filter (matches current server?)
+- Review whitelist/blacklist settings
+- Ensure bot is not being ignored (if applicable)
 
-### Invalid Regex Errors
-- Plugin catches invalid regex and prevents crashes
-- Double-check your regex patterns for syntax errors
-- Escape special characters properly (e.g., `\.` instead of `.`)
+### Webhook Not Working
 
-## 🔒 Privacy
+- Verify webhook URL is correct
+- Check webhook permissions in Discord
+- Check console for error messages
+- Test webhook with curl:
+  ```bash
+  curl -X POST -H "Content-Type: application/json" \
+    -d '{"content":"test"}' \
+    WEBHOOK_URL
+  ```
 
-- All data is stored **locally** on your machine
-- No data is sent to external servers
-- No analytics or tracking
-- Keyword rules and logs persist only in your Vencord DataStore
+### Stats Not Updating
 
-## 💡 Tips & Tricks
+- Check keyword entry is **Enabled**
+- Verify matches are occurring
+- Check DataStore is working
+- Reload plugin (restart Discord)
 
-1. **Use Specific Patterns**: Avoid overly broad regex that matches too much
-2. **Leverage Filters**: Use blacklist to exclude spammy channels
-3. **Test Regex First**: Use regex101.com to test patterns before adding
-4. **Clean Up Regularly**: Periodically clear old notifications to keep things tidy
-5. **Profile Your Needs**: Create multiple keyword entries for different purposes
+## Testing
 
-## 🤝 Contributing
+The plugin includes unit tests for core functionality:
 
-This plugin is open to contributions! Areas for improvement:
-- Better regex validation UI
-- Sound notifications for keyword matches
-- Export/import configuration
-- Keyword statistics and analytics
-- Mobile support (when available in Vencord)
+### Running Tests
 
-### Development
+```bash
+npm install          # Install test dependencies
+npm test           # Run all tests
+npm run test:watch # Run tests in watch mode
+```
 
-See `CLAUDE.md` for detailed development context and architecture documentation.
+### Test Coverage
 
-## 📄 License
+- **Keyword Matching**: Regex patterns, case sensitivity, complex patterns
+- **Data Migration**: Old entries to new format compatibility
+- **Multi-Server Filtering**: Server-specific and global keyword logic
+- **Stats Tracking**: Match counts and server-specific tracking
+- **Webhook Configuration**: URL validation and null handling
 
-This project is licensed under GPL-3.0 - see the LICENSE file for details.
+### Test Framework
 
-This plugin is built on top of Vencord, which is also GPL-3.0 licensed.
+- **Vitest**: Fast unit testing with native ESM support
+- **17 Tests**: All passing, covering core logic functions
+- **Files**: `tests/keyword.test.ts`
 
-## 🙏 Acknowledgments
+### Adding Tests
 
-- **Vencord/Equicord**: The amazing Discord client mod framework
-- **Discord**: For the platform this plugin enhances
-- **Community**: For feedback and feature suggestions
+To add new tests, create test files in `tests/` directory with `.test.ts` extension:
 
-## 📧 Support
+```typescript
+import { describe, test, expect } from "vitest";
 
-- **Issues**: [Report bugs or request features](https://github.com/luinbytes/equicord-keywordautoresponder/issues)
-- **Discord**: Join the Vencord Discord for community support
-- **Documentation**: Check CLAUDE.md for developer documentation
+describe("Feature Name", () => {
+    test("test description", () => {
+        expect(value).toBe(expected);
+    });
+});
+```
 
----
+## Credits
 
-Made with 💜 by luinbytes
-
-🌟 Star this repo if you find it useful!
+- Original authors: camila314, x3rt
+- Multi-server update: Lumi (Lu's AI Assistant)
+- Vencord framework

@@ -1,0 +1,13 @@
+{
+  "name": "equicord-keywordautoresponder",
+  "version": "1.0.0",
+  "description": "Vencord plugin for keyword notifications with multi-server support",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0",
+    "@types/node": "^20.11.0"
+  }
+}
