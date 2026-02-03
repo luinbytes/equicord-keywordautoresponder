@@ -197,6 +197,46 @@ After running for a while:
 - Check DataStore is working
 - Reload plugin (restart Discord)
 
+## Testing
+
+The plugin includes unit tests for core functionality:
+
+### Running Tests
+
+```bash
+npm install          # Install test dependencies
+npm test           # Run all tests
+npm run test:watch # Run tests in watch mode
+```
+
+### Test Coverage
+
+- **Keyword Matching**: Regex patterns, case sensitivity, complex patterns
+- **Data Migration**: Old entries to new format compatibility
+- **Multi-Server Filtering**: Server-specific and global keyword logic
+- **Stats Tracking**: Match counts and server-specific tracking
+- **Webhook Configuration**: URL validation and null handling
+
+### Test Framework
+
+- **Vitest**: Fast unit testing with native ESM support
+- **17 Tests**: All passing, covering core logic functions
+- **Files**: `tests/keyword.test.ts`
+
+### Adding Tests
+
+To add new tests, create test files in `tests/` directory with `.test.ts` extension:
+
+```typescript
+import { describe, test, expect } from "vitest";
+
+describe("Feature Name", () => {
+    test("test description", () => {
+        expect(value).toBe(expected);
+    });
+});
+```
+
 ## Credits
 
 - Original authors: camila314, x3rt
