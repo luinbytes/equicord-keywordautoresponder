@@ -45,7 +45,7 @@ type KeywordStats = {
 };
 
 let keywordEntries: Array<KeywordEntry> = [];
-let keywordLog: Array<any> = [];
+let keywordLog: Array<MessageLogEntry> = [];
 let interceptor: (e: any) => void;
 
 const recentMentionsPopoutClass = findByPropsLazy("recentMentionsPopout");
@@ -788,14 +788,16 @@ export default definePlugin({
         if (m == null || keywordLog.some(e => e.id === m.id))
             return;
 
-        let messageRecord: any;
+        let messageRecord: MessageLogEntry | null;
         try {
-            messageRecord = createMessageRecord(m);
+            messageRecord = createMessageRecord(m) as MessageLogEntry;
         } catch (err) {
             return;
         }
 
-        keywordLog.push(messageRecord);
+        if (messageRecord) {
+            keywordLog.push(messageRecord);
+        }
         keywordLog.sort((a, b) => b.timestamp - a.timestamp);
 
         while (keywordLog.length > settings.store.amountToKeep) {
